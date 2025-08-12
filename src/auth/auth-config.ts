@@ -1,14 +1,14 @@
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
-import NextAuth, { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
 const nextAuthSecret = process.env.AUTH_SECRET;
 
-export const authOptions = {
+export const authOptions: NextAuthConfig = {
     trustHost: true,
     secret: nextAuthSecret,
     logger: {
-        error(error: any) {
+        error(error) {
             console.error(error);
         },
     },
@@ -40,19 +40,14 @@ export const authOptions = {
     ],
     callbacks: {
         async session({ session, token }) {
-            if (token.sub && session.user) {
-                session.user.id = token.sub;
-            }
             if (session.user) {
                 session.user.id = token.sub as string;
                 session.user.name = token.name || session.user.name;
                 session.user.image = token.picture || session.user.image;
                 session.user.email = token.email as string;
-                session.user.emailVerified = token.verified as Date | null;
+                session.user.isVerified = token.verified as Date | null;
             }
             return session;
         },
     },
-} satisfies NextAuthConfig;
-
-export const { auth: authJWT, signOut } = NextAuth(authOptions);
+};

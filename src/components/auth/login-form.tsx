@@ -9,14 +9,12 @@ import { cn } from "@/lib/utils"
 import { Github, Loader2 } from "lucide-react"
 import { useTransition } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from 'next/navigation'
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [isPending, startTransition] = useTransition();
-  const { push } = useRouter();
 
   const handleSubmit = (provider: string) => {
     try {

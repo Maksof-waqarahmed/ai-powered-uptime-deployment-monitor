@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id() @default(cuid())
+  id                String  @id @default(cuid())
   userId            String  @map("user_id")
   type              String
   provider          String
@@ -33,13 +27,29 @@ model Account {
 }
 
 model User {
-  id            String    @id() @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
   email         String?   @unique()
   image         String?
   isBlocked     Boolean   @default(false) @map("is_blocked")
   emailVerified DateTime? @map("email_verified")
   accounts      Account[]
+  monitors      Monitor[]
 
   @@map("user")
+}
+
+model Monitor {
+  id            String  @id @default(cuid())
+  name          String
+  url           String
+  checkInterval String
+  timeout       String
+  emailAlert    Boolean @default(false)
+  slackAlert    Boolean @default(true)
+  email         String?
+  userId        String
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("monitor")
 }
