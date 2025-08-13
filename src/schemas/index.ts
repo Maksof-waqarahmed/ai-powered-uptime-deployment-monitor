@@ -6,7 +6,6 @@ export const monitorSchema = z.object({
     checkInterval: z.string().min(1),
     timeout: z.string().min(1),
     emailAlert: z.boolean(),
-    slackAlert: z.boolean(),
     email: z.string().email().optional(),
   });
   

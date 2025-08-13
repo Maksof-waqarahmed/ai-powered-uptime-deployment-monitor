@@ -17,9 +17,22 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { monitorSchema } from '@/schemas'
+import { api } from '@/trpc-server/react'
+import { toast } from 'sonner'
+import { Label } from './ui/label'
+
+type AddUrlsFormProps = {
+    slackURL: string;
+};
 
 
-const AddUrlsForm = () => {
+const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
+    const { mutateAsync: addURL, isPending, } = api.monitor.add.useMutation({
+        onError: (error) => {
+            console.error("API error:", error);
+        }
+    })
+
     const form = useForm<z.infer<typeof monitorSchema>>({
         resolver: zodResolver(monitorSchema),
         defaultValues: {
@@ -28,17 +41,16 @@ const AddUrlsForm = () => {
             checkInterval: "5",
             timeout: "30",
             emailAlert: false,
-            slackAlert: true
         }
     });
 
-    const [isLoading, setIsLoading] = useState(false)
 
     async function onSubmit(values: z.infer<typeof monitorSchema>) {
-        setIsLoading(true)
-        console.log("Form Data:", values)
-        // yahan API call karo e.g. await fetch('/api/monitors', { method: "POST", body: JSON.stringify(values) })
-        setIsLoading(false)
+        await addURL({
+            ...values
+        })
+
+        toast.success("Monitor Created Successfully");
     }
 
     return (
@@ -142,31 +154,28 @@ const AddUrlsForm = () => {
                                 )}
                             />
 
-                            {/* Slack Alert */}
-                            <FormField
-                                control={form.control}
-                                name="slackAlert"
-                                render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between">
-                                        <div>
-                                            <FormLabel>Slack Alerts</FormLabel>
-                                            <p className="text-sm text-muted-foreground">Send notifications to your Slack channel</p>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label>Slack Alerts</Label>
+                                    <p className="text-sm text-muted-foreground">Send notifications to your Slack channel</p>
+                                </div>
+                                <div className="flex gap-4 mt-6">
+                                    <Button onClick={() => {
+                                        if (slackURL) {
+                                            window.location.href = slackURL;
+                                        }
+                                    }}>
+                                        Connect Slack
+                                    </Button>
+                                </div>
+                            </div>
+
 
                         </div>
 
                         <div className="flex gap-4 mt-6">
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading ? "Creating Monitor..." : "Create Monitor"}
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? "Creating Monitor..." : "Create Monitor"}
                             </Button>
                         </div>
                     </CardContent>

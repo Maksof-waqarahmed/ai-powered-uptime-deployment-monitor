@@ -4,6 +4,8 @@ import type { DefaultSession, Session } from "next-auth";
 import { prisma } from "../../prisma/db";
 import { authOptions } from "./auth-config";
 
+
+export { Session };
 declare module "next-auth" {
     interface Session {
         user: {

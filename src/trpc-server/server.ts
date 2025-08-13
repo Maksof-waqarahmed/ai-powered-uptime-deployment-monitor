@@ -13,7 +13,7 @@ const _headers = cache(async ()=> headers())
 const createContext = cache(async () => {
   const heads = new Headers(await _headers());
   heads.set("x-trpc-source", "rsc");
-  heads.set("portal", "customer");
+  // heads.set("portal", "customer");
   return createTRPCContext({
     session: await auth(),
     headers: heads,

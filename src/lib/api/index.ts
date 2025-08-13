@@ -1,7 +1,5 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import type { AppRouter } from "./root";
-import { appRouter } from "./root";
+import { appRouter, type AppRouter } from "./root";
 import { createCallerFactory, createTRPCContext } from "./trpc";
 
 /**

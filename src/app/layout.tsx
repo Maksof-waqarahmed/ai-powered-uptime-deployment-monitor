@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { TRPCReactProvider } from "@/trpc/react";
+import { TRPCReactProvider } from "@/trpc-server/react";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { Toaster } from "sonner";

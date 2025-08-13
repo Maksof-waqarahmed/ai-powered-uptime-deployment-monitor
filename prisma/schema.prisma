@@ -26,6 +26,25 @@ model Account {
   @@map("accounts")
 }
 
+model SlackInstallation {
+  id            String   @id @default(cuid())
+  userId        String
+  teamId        String
+  teamName      String?
+  channelId     String?
+  channelName   String?
+  webhookUrl    String   // from incoming_webhook.url
+  botUserId     String?
+  authedUserId  String?
+  accessToken   String?  // optional (if you ever use Web API)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([teamId])
+}
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -35,6 +54,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   accounts      Account[]
   monitors      Monitor[]
+  SlackInstallation SlackInstallation[]
 
   @@map("user")
 }
