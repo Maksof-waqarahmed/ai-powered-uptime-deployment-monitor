@@ -64,8 +64,8 @@ const data = {
           icon: SquareTerminal,
         },
         {
-          title: "Settings",
-          url: "/dashboard/monitoring/settings",
+          title: "URLS",
+          url: "/dashboard/monitoring/allURLs",
           icon: Settings2,
         },
       ],

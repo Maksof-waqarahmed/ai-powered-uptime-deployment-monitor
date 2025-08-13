@@ -27,33 +27,34 @@ model Account {
 }
 
 model SlackInstallation {
-  id            String   @id @default(cuid())
-  userId        String
-  teamId        String
-  teamName      String?
-  channelId     String?
-  channelName   String?
-  webhookUrl    String   // from incoming_webhook.url
-  botUserId     String?
-  authedUserId  String?
-  accessToken   String?  // optional (if you ever use Web API)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  teamId       String
+  teamName     String?
+  channelId    String?
+  channelName  String?
+  webhookUrl   String // from incoming_webhook.url
+  botUserId    String?
+  authedUserId String?
+  accessToken  String? // optional (if you ever use Web API)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([teamId])
 }
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  image         String?
-  isBlocked     Boolean   @default(false) @map("is_blocked")
-  emailVerified DateTime? @map("email_verified")
-  accounts      Account[]
-  monitors      Monitor[]
+  id                String              @id @default(cuid())
+  name              String?
+  email             String?             @unique
+  image             String?
+  isBlocked         Boolean             @default(false) @map("is_blocked")
+  emailVerified     DateTime?           @map("email_verified")
+  accounts          Account[]
+  monitors          Monitor[]
   SlackInstallation SlackInstallation[]
 
   @@map("user")
@@ -65,6 +66,7 @@ model Monitor {
   url           String
   checkInterval String
   timeout       String
+  isDeleted     Boolean @default(false)
   emailAlert    Boolean @default(false)
   slackAlert    Boolean @default(true)
   email         String?

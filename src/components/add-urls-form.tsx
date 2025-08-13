@@ -51,6 +51,7 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
         })
 
         toast.success("Monitor Created Successfully");
+        form.reset()
     }
 
     return (
