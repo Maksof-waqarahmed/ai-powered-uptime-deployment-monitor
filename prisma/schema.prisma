@@ -71,7 +71,23 @@ model Monitor {
   slackAlert    Boolean @default(true)
   email         String?
   userId        String
-  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nextCheckAt   DateTime
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  MonitorLog MonitorLog[]
 
   @@map("monitor")
+}
+
+model MonitorLog {
+  id           String   @id @default(cuid())
+  monitorId    String
+  status       String   // "UP" | "DOWN" | "ERROR"
+  httpCode     Int?     // HTTP status code, if any
+  responseTime Int?     // in milliseconds
+  errorMessage String?  // if failed
+  checkedAt    DateTime @default(now())
+
+  monitor      Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId])
 }
