@@ -34,6 +34,25 @@ export const monitorRouter = createTRPCRouter({
             })
 
         }
+    }),
+    getAllMonitors: protectedProcedure.query(async ({ ctx }) => {
+        const userID = ctx.session.user.id;
+
+        return await ctx.prisma.monitorLog.findMany({
+            where: { monitor: { userId: userID } },
+            include: {
+                monitor: {
+                    select: {
+                        name: true,
+                        url: true,
+                    }
+                }
+            },
+            orderBy: {
+                checkedAt: "desc"
+            }
+        })
+
     })
 })
 
