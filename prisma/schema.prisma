@@ -61,19 +61,21 @@ model User {
 }
 
 model Monitor {
-  id            String  @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String
   url           String
   checkInterval String
   timeout       String
-  isDeleted     Boolean @default(false)
-  emailAlert    Boolean @default(false)
-  slackAlert    Boolean @default(true)
+  isDeleted     Boolean      @default(false)
+  emailAlert    Boolean      @default(false)
+  slackAlert    Boolean      @default(true)
   email         String?
   userId        String
   nextCheckAt   DateTime?
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  MonitorLog MonitorLog[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime?    @default(now())
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  MonitorLog    MonitorLog[]
 
   @@map("monitor")
 }
@@ -81,13 +83,13 @@ model Monitor {
 model MonitorLog {
   id           String   @id @default(cuid())
   monitorId    String
-  status       String   // "UP" | "DOWN" | "ERROR"
-  httpCode     Int?     // HTTP status code, if any
-  responseTime Int?     // in milliseconds
-  errorMessage String?  // if failed
+  status       String // "UP" | "DOWN" | "ERROR"
+  httpCode     Int? // HTTP status code, if any
+  responseTime Int? // in milliseconds
+  errorMessage String? // if failed
   checkedAt    DateTime @default(now())
 
-  monitor      Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
   @@index([monitorId])
 }

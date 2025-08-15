@@ -10,20 +10,20 @@ import {
     SheetHeader,
     SheetTitle
 } from "@/components/ui/sheet"
-import { monitorSchema } from "@/schemas"
+import { monitorUpdateSchema } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import z from "zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { api } from "@/trpc-server/react"
+import { useRouter } from "next/navigation"
 
 interface EditURL {
     name: string,
     checkInterval: string,
     timeout: string,
-    slackAlert: boolean,
-    emailAlert: boolean,
     url: string,
     id: string
 }
@@ -35,13 +35,19 @@ interface UpdateURLProps {
 }
 
 const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
+    const { mutateAsync: update, isPending } = api.urls.updateURL.useMutation({
+        onError: (error) => {
+            console.log("Error", error)
+        }
+    })
 
-    const form = useForm<z.infer<typeof monitorSchema>>({
-        resolver: zodResolver(monitorSchema),
+    const form = useForm<z.infer<typeof monitorUpdateSchema>>({
+        resolver: zodResolver(monitorUpdateSchema),
         mode: "onChange"
     });
 
-    // Update form values when "url" changes
+    const router = useRouter();
+
     useEffect(() => {
         if (url) {
             form.reset({
@@ -53,23 +59,26 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
         }
     }, [url, form]);
 
-    async function onSubmit(values: z.infer<typeof monitorSchema>) {
-        // Call API to update...
+    async function onSubmit(values: z.infer<typeof monitorUpdateSchema>) {
+        await update({
+            ...values,
+            id: url?.id || ""
+        })
         toast.success("Monitor updated successfully");
         onOpenChange(false);
+        router.refresh();
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <Sheet open={open} onOpenChange={onOpenChange}>
-                    <SheetContent>
-                        <SheetHeader>
-                            <SheetTitle>Edit URL</SheetTitle>
-                        </SheetHeader>
-
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent>
+                <SheetHeader>
+                    <SheetTitle>Edit URL</SheetTitle>
+                </SheetHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                            {/* Name */}
+                            
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -84,7 +93,6 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
-                            {/* URL */}
                             <FormField
                                 control={form.control}
                                 name="url"
@@ -99,7 +107,6 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
-                            {/* Interval */}
                             <FormField
                                 control={form.control}
                                 name="checkInterval"
@@ -125,7 +132,6 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
-                            {/* Timeout */}
                             <FormField
                                 control={form.control}
                                 name="timeout"
@@ -141,14 +147,15 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                             />
                         </div>
 
-
                         <SheetFooter>
-                            <Button type="submit">Update</Button>
+                            <Button disabled={isPending} type="submit">{isPending ? "Updating..." : "Update"}</Button>
                         </SheetFooter>
-                    </SheetContent>
-                </Sheet>
-            </form>
-        </Form>
+                    </form>
+                </Form>
+
+            </SheetContent>
+        </Sheet>
+
     );
 };
 
