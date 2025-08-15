@@ -1,37 +1,67 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { prisma } from "../../prisma/db";
+import { generateGeminiResponse } from "@/scripts/gpt-script";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
-const checkWebsite = async () => {
+export const checkWebsite = async () => {
   const now = new Date();
-
   const urls = await prisma.monitor.findMany({
-    where: { nextCheckAt: { lte: now } }
-  })
+    where: { isDeleted: false, nextCheckAt: { lte: now } },
+  });
 
   for (const { url, id, checkInterval } of urls) {
+    let httpCode: number | null = null;
+    let responseTime: number | null = null;
+    let errorMessage: string | null = null;
+    let bodySnippet = "";
+
     try {
-      const res = await fetch(url, { method: "GET" });
-      if (!res.ok) {
-        // await sendSlackAlert(monitor.slackToken, `❌ ${monitor.url} is DOWN!`);
-      }
-    } catch (err) {
-      // await sendSlackAlert(monitor.slackToken, `🚨 ${monitor.url} check failed!`);
+      const start = Date.now();
+      const res = await fetch("https://wallwoodies.com/", { method: "GET" });
+      responseTime = Date.now() - start;
+      httpCode = res.status;
+
+      const body = await res.text();
+      bodySnippet = body.slice(0, 1000);
+    } catch (err: any) {
+      errorMessage = err.message || "Request failed";
     }
 
-    // Update next check time
-    await prisma.monitor.update({
-      where: { id },
-      data: { nextCheckAt: new Date(Date.now() + Number(checkInterval) * 60 * 1000) }
+    const geminiResult = await generateGeminiResponse({
+      httpCode,
+      responseTime,
+      errorMessage,
+      bodySnippet,
     });
 
+    console.log("Result for", url, geminiResult);
+
+    if (geminiResult) {
+      await prisma.monitorLog.create({
+        data: {
+          monitorId: id,
+          status: geminiResult.status,
+          httpCode: geminiResult.httpCode,
+          responseTime: geminiResult.responseTime,
+          errorMessage: geminiResult.errorMessage,
+          checkedAt: new Date()
+        },
+      });
+    }
+
+    await prisma.monitor.update({
+      where: { id },
+      data: {
+        nextCheckAt: new Date(Date.now() + Number(checkInterval) * 60 * 1000),
+      },
+    });
   }
-}
+};
+
 async function sendSlackAlert(token: string, text: string) {
   await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",

@@ -83,13 +83,19 @@ model Monitor {
 model MonitorLog {
   id           String   @id @default(cuid())
   monitorId    String
-  status       String // "UP" | "DOWN" | "ERROR"
+  status       Status
   httpCode     Int? // HTTP status code, if any
   responseTime Int? // in milliseconds
   errorMessage String? // if failed
-  checkedAt    DateTime @default(now())
+  checkedAt    DateTime
 
   monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
   @@index([monitorId])
+}
+
+enum Status {
+  UP
+  DOWN
+  ERROR
 }

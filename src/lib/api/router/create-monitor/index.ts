@@ -1,7 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { monitorSchema } from "@/schemas";
-import { TRPCError } from "@trpc/server";
 
 
 export const monitorRouter = createTRPCRouter({
@@ -24,8 +23,8 @@ export const monitorRouter = createTRPCRouter({
                     url: input.url,
                     checkInterval: input.checkInterval,
                     timeout: input.timeout,
-                    userId: userID
-
+                    userId: userID,
+                    nextCheckAt: new Date(Date.now() + Number(input.checkInterval) * 60 * 1000)
                 }
             })
         } catch (error: any) {
