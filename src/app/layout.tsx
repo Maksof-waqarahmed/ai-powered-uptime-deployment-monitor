@@ -5,6 +5,8 @@ import { TRPCReactProvider } from "@/trpc-server/react";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { Toaster } from "sonner";
+import { SessionProvider } from "next-auth/react";
+// import "@/scripts/cron";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -27,8 +29,11 @@ export default function RootLayout({
       <body
         className={`${roboto.variable} antialiased`}
       >
+
         <TRPCReactProvider headersPromise={getHeaders()}>
-          {children}
+          <SessionProvider>
+            {children}
+          </SessionProvider>
         </TRPCReactProvider>
         <Toaster richColors theme="system" />
       </body>

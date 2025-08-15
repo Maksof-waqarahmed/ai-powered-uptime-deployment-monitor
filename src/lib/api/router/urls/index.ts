@@ -13,11 +13,34 @@ const monitorSelect = {
 };
 
 export const getURLs = createTRPCRouter({
-    getAllURLs: protectedProcedure.query(async ({ ctx }) => {
-        return ctx.prisma.monitor.findMany({
-            where: { isDeleted: false },
-            select: monitorSelect,
-        });
+    getAllURLs: protectedProcedure.input(
+        z.object({
+            page: z.number().min(1).default(1),
+            limit: z.number().min(1).max(100).default(10),
+        })
+    ).query(async ({ ctx, input }) => {
+        const userID = ctx.session.user.id;
+        const { page, limit } = input;
+
+        const [items, total] = await Promise.all([
+            ctx.prisma.monitor.findMany({
+                where: { isDeleted: false, userId: userID },
+                select: monitorSelect,
+                orderBy: { createdAt: "desc" },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            ctx.prisma.monitor.count({
+                where: { isDeleted: false, userId: userID },
+            }),
+        ]);
+
+        return {
+            items,
+            total,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+        };
     }),
 
     deleteURLs: protectedProcedure
@@ -48,8 +71,8 @@ export const getURLs = createTRPCRouter({
                 id: z.string(),
                 name: z.string().optional(),
                 url: z.string().url().optional(),
-                checkInterval: z.number().min(1).optional(),
-                timeout: z.number().min(1).optional(),
+                checkInterval: z.string().min(1).optional(),
+                timeout: z.string().min(1).optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -79,7 +102,7 @@ export const getURLs = createTRPCRouter({
 
             await ctx.prisma.monitor.update({
                 where: { id },
-                data: updateData
+                data: { ...updateData, updatedAt: new Date() }
             });
         }),
 });

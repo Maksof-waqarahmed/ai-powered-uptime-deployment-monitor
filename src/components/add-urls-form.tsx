@@ -64,7 +64,6 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                     <CardContent>
                         <div className="grid gap-4">
 
-                            {/* Name */}
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -79,7 +78,6 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                                 )}
                             />
 
-                            {/* URL */}
                             <FormField
                                 control={form.control}
                                 name="url"
@@ -94,7 +92,6 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                                 )}
                             />
 
-                            {/* Check Interval */}
                             <FormField
                                 control={form.control}
                                 name="checkInterval"
@@ -120,7 +117,6 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                                 )}
                             />
 
-                            {/* Timeout */}
                             <FormField
                                 control={form.control}
                                 name="timeout"
@@ -135,7 +131,6 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                                 )}
                             />
 
-                            {/* Email Alert */}
                             <FormField
                                 control={form.control}
                                 name="emailAlert"

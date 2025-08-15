@@ -11,6 +11,9 @@ importers:
       '@auth/prisma-adapter':
         specifier: ^2.10.0
         version: 2.10.0(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))
+      '@google/generative-ai':
+        specifier: ^0.24.1
+        version: 0.24.1
       '@hookform/resolvers':
         specifier: ^5.2.1
         version: 5.2.1(react-hook-form@7.62.0(react@19.1.0))
@@ -89,6 +92,9 @@ importers:
       node-cron:
         specifier: ^4.2.1
         version: 4.2.1
+      openai:
+        specifier: ^5.12.2
+        version: 5.12.2(zod@4.0.17)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -246,6 +252,10 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@google/generative-ai@0.24.1':
+    resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
+    engines: {node: '>=18.0.0'}
 
   '@hookform/resolvers@5.2.1':
     resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
@@ -2274,6 +2284,18 @@ packages:
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
 
+  openai@5.12.2:
+    resolution: {integrity: sha512-xqzHHQch5Tws5PcKR2xsZGX9xtch+JQFz5zb14dGqlshmmDAFBFEWmeIpf7wVqWV+w7Emj7jRgkNJakyKE0tYQ==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -2889,6 +2911,8 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.10': {}
+
+  '@google/generative-ai@0.24.1': {}
 
   '@hookform/resolvers@5.2.1(react-hook-form@7.62.0(react@19.1.0))':
     dependencies:
@@ -4986,6 +5010,10 @@ snapshots:
       es-object-atoms: 1.1.1
 
   ohash@2.0.11: {}
+
+  openai@5.12.2(zod@4.0.17):
+    optionalDependencies:
+      zod: 4.0.17
 
   optionator@0.9.4:
     dependencies:
