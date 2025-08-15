@@ -71,7 +71,7 @@ model Monitor {
   slackAlert    Boolean @default(true)
   email         String?
   userId        String
-  nextCheckAt   DateTime
+  nextCheckAt   DateTime?
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   MonitorLog MonitorLog[]
 

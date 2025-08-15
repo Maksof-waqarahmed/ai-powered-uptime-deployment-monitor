@@ -14,8 +14,9 @@ const monitorSelect = {
 
 export const getURLs = createTRPCRouter({
     getAllURLs: protectedProcedure.query(async ({ ctx }) => {
+        const userID = ctx.session.user.id;
         return ctx.prisma.monitor.findMany({
-            where: { isDeleted: false },
+            where: { isDeleted: false, userId: userID },
             select: monitorSelect,
         });
     }),

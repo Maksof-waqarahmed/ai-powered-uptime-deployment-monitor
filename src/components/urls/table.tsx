@@ -1,8 +1,10 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Button } from '../ui/button'
 import { Edit, Trash2 } from 'lucide-react'
+import UpdateURL from '../update-urls-form'
 
 interface URLs {
     name: string,
@@ -18,9 +20,16 @@ interface TableProps {
     data: URLs[]
 }
 const TableURLs = ({ data }: TableProps) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedURL, setSelectedURL] = useState<URLs | null>(null);
+
     return (
         <div>
-
+            <UpdateURL
+                open={isOpen}
+                onOpenChange={setIsOpen}
+                url={selectedURL || undefined}
+            />
             <Card>
                 <CardContent>
                     <Table>
@@ -36,25 +45,22 @@ const TableURLs = ({ data }: TableProps) => {
                         <TableBody>
                             {data.map((log) => (
                                 <TableRow key={log.id}>
-                                    <TableCell className="font-mono text-sm">{log.name}</TableCell>
-                                    <TableCell className="font-mono text-sm text-blue-600">{log.url}</TableCell>
-                                    <TableCell className="font-mono text-sm">{log.checkInterval}</TableCell>
-                                    <TableCell className="font-mono text-sm">{log.timeout}</TableCell>
-                                    <TableCell className="font-mono text-sm">{log.emailAlert}</TableCell>
-                                    <TableCell className="font-mono text-sm">{log.emailAlert}</TableCell>
-                                    <TableCell >
+                                    <TableCell>{log.name}</TableCell>
+                                    <TableCell className="text-blue-600">{log.url}</TableCell>
+                                    <TableCell>{log.checkInterval}</TableCell>
+                                    <TableCell>{log.timeout}</TableCell>
+                                    <TableCell>
                                         <Button
                                             size="sm"
                                             variant="ghost"
-                                            className="text-primary hover:text-primary/40 hover:bg-white/10"
+                                            onClick={() => {
+                                                setSelectedURL(log);
+                                                setIsOpen(true);
+                                            }}
                                         >
                                             <Edit className="w-4 h-4" />
                                         </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                        >
+                                        <Button size="sm" variant="ghost" className="text-red-400">
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </TableCell>
@@ -65,7 +71,8 @@ const TableURLs = ({ data }: TableProps) => {
                 </CardContent>
             </Card>
         </div>
-    )
-}
+    );
+};
+
 
 export default TableURLs
