@@ -1,11 +1,8 @@
 "use client"
 
 import {
-  AudioWaveform,
   Bot,
-  Command,
   Frame,
-  GalleryVerticalEnd,
   Settings2,
   SquareTerminal
 } from "lucide-react"
@@ -21,31 +18,10 @@ import {
 import { Logo } from "./logo"
 import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
+import { useSession } from 'next-auth/react';
 
 // This is sample data.
 const data = {
-  user: {
-    name: "Waqar Rana",
-    email: "waqarahmed7861234@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Monitoring",
@@ -79,16 +55,21 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, status } = useSession()
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Logo teams={data.teams} />
+        <Logo />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {
+          session &&
+          <NavUser user={session?.user} />
+        }
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
