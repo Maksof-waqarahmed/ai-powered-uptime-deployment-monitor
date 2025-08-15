@@ -8,7 +8,7 @@ const schema = z.object({
     errorMessage: z.string().nullable(),
 });
 
-const genAI = new GoogleGenerativeAI("AIzaSyDXBtEdmsAKs9MVTHNmbLOX68cr6nW8yps");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 async function generateWithRetry(prompt: string, retries = 3) {
     const modelNames = ["gemini-1.5-flash", "gemini-1.0-pro"];

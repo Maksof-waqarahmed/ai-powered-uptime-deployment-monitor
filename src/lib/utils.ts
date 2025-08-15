@@ -21,7 +21,7 @@ export const checkWebsite = async () => {
 
     try {
       const start = Date.now();
-      const res = await fetch("https://wallwoodies.com/", { method: "GET" });
+      const res = await fetch(url, { method: "GET" });
       responseTime = Date.now() - start;
       httpCode = res.status;
 
