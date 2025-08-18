@@ -33,10 +33,10 @@ model SlackInstallation {
   teamName     String?
   channelId    String?
   channelName  String?
-  webhookUrl   String // from incoming_webhook.url
+  webhookUrl   String
   botUserId    String?
   authedUserId String?
-  accessToken  String? // optional (if you ever use Web API)
+  accessToken  String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -84,9 +84,9 @@ model MonitorLog {
   id           String   @id @default(cuid())
   monitorId    String
   status       Status
-  httpCode     Int? // HTTP status code, if any
-  responseTime Int? // in milliseconds
-  errorMessage String? // if failed
+  httpCode     Int?
+  responseTime Int?
+  errorMessage String?
   checkedAt    DateTime
 
   monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
