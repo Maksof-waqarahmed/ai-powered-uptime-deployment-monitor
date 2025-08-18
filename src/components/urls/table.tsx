@@ -76,7 +76,7 @@ const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
                                     data.map((log) => (
                                         <TableRow key={log.id}>
                                             <TableCell>{log.name}</TableCell>
-                                            <TableCell className="text-blue-600">{log.url}</TableCell>
+                                            <TableCell className="text-blue-600"><a href={log.url} target='_blank'>{log.url}</a></TableCell>
                                             <TableCell>{log.checkInterval}</TableCell>
                                             <TableCell>{log.timeout}</TableCell>
                                             <TableCell>

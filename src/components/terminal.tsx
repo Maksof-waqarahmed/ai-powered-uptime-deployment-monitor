@@ -1,13 +1,11 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Terminal } from 'lucide-react'
-import { Timestamp } from 'next/dist/server/lib/cache-handlers/types'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
-interface Logs {
+export interface Logs {
     id: string
     monitorId: string
     status: string
-    httpCode: number | null   // <-- allow null
+    httpCode: number | null
     responseTime: number | null
     errorMessage: string | null
     checkedAt: Date
@@ -57,8 +55,8 @@ const TerminalComp = ({ data }: TerminalProps) => {
                         {data && data.map((log) => (
                             <div key={log.id} className="mb-2 hover:bg-gray-900 p-2 rounded">
                                 <span className="text-gray-500"> [{log.checkedAt.toLocaleString()}]</span>{" "}
-                                {/* <span className={`font-bold ${getLevelColor(log.level)}`}>{log.level}</span>{" "} */}
-                                <span className="text-blue-400">{log.monitor.url}</span> <span className="text-purple-400">({log.monitor.name})</span>{" "}
+                                <span className="font-bold text-white">{log.httpCode}</span>{" "}
+                                <span className="text-blue-400"><a href={log.monitor.url} target='_blank'>{log.monitor.url}</a></span> <span className="text-purple-400">({log.monitor.name})</span>{" "}
                                 <span className={getStatusColor(+log.status)}>{log.status}</span>{" "}
                                 <span className="text-gray-400">{log.responseTime}</span>
                                 <br />

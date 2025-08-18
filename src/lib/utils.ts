@@ -38,8 +38,6 @@ export const checkWebsite = async () => {
       bodySnippet,
     });
 
-    console.log("Result for", url, geminiResult);
-
     if (geminiResult) {
       await prisma.monitorLog.create({
         data: {

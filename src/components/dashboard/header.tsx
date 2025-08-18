@@ -35,6 +35,7 @@ const Header = async () => {
                         </div>
                     </div>
                 </div>
+                <Separator/>
             </header>
         </div>
     )
