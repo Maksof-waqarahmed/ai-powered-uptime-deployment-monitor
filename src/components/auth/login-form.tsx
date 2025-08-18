@@ -43,7 +43,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   ) : (
                     <Chrome className="h-5 w-5 mr-3 text-blue-500 group-hover:scale-110 transition-transform duration-200" />
                   )}
-                  {isPending ? "Connecting..." : "Continue with Google"}
+                  {isPending ? <span className="text-black">Connecting...</span> : <span className="text-black">Continue with Google</span>}
                 </Button>
 
                 <Button
@@ -55,9 +55,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   {isPending ? (
                     <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                   ) : (
-                    <Github className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                    <Github className="h-5 w-5 mr-3 text-black group-hover:scale-110 transition-transform duration-200" />
                   )}
-                  {isPending ? "Connecting..." : "Continue with GitHub"}
+                  {isPending ? <span className="text-black">Connecting...</span> : <span className="text-black">Continue with GitHub</span>}
                 </Button>
               </div>
             </div>
