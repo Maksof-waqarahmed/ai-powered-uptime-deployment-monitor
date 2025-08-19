@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const slack = await prisma.slackInstallation.create({
+    await prisma.slackInstallation.create({
       data: {
         teamId: data.team.id,
         teamName: data.team.name,
@@ -40,8 +40,8 @@ export async function GET(req: NextRequest) {
         authedUserId: data.authed_user?.id,
         accessToken: data.access_token,
         webhookUrl: "",
-        channelId: null,
-        channelName: null,
+        channelId: "C096MUJUBT6",
+        channelName: "social",
         scopes: data.scope,
         user: {
           connect: { id: state },
