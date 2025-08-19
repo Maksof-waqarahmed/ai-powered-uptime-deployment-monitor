@@ -1,7 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { prisma } from "../../prisma/db";
 import { generateGeminiResponse } from "@/scripts/gpt-script";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { prisma } from "../../prisma/db";
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

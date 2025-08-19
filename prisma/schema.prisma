@@ -37,6 +37,7 @@ model SlackInstallation {
   botUserId    String?
   authedUserId String?
   accessToken  String?
+  scopes       String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
