@@ -35,7 +35,11 @@ const TableLogs = ({ data }: TableProps) => {
                                 <TableRow key={log.id}>
                                     <TableCell className="font-mono text-sm">{log.checkedAt.toLocaleString()}</TableCell>
                                     <TableCell className="font-medium">{log.monitor.name}</TableCell>
-                                    <TableCell className="font-mono text-sm text-blue-600"><a href={log.monitor.url} target="_blank">{log.monitor.url}</a></TableCell>
+                                    <TableCell className="font-mono text-sm text-blue-600 max-w-[200px] truncate">
+                                        <a href={log.monitor.url} target="_blank" title={log.monitor.url}>
+                                            {log.monitor.url}
+                                        </a>
+                                    </TableCell>
                                     <TableCell className="font-mono text-sm">{log.httpCode}</TableCell>
                                     <TableCell>
                                         <span className="">{log.status}</span>

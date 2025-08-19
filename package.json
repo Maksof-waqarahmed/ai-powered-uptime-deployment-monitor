@@ -26,6 +26,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@slack/web-api": "^7.9.3",
     "@tanstack/react-query": "^5.84.2",
     "@trpc/client": "^11.4.4",
     "@trpc/react-query": "^11.4.4",

@@ -7,12 +7,12 @@ import { Search } from "lucide-react";
 
 export default async function LogsPage() {
 
-  const data = await api.monitor.getAllMonitors();
+  const data = await api.monitor.getAllMonitors() || [];
 
   return (
     <div className="min-h-screen">
       <div className="space-y-6">
-        
+
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-primary">Logs</h1>
           <div className="flex items-center gap-4">
@@ -38,7 +38,7 @@ export default async function LogsPage() {
         </div>
 
         {/* Terminal-style Log Display */}
-        <TerminalComp data={data!} />
+        <TerminalComp data={data.slice(0, 5)} />
 
         {/* Logs Table */}
         <TableLogs data={data} />

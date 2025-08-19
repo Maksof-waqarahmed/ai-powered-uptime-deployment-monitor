@@ -1,8 +1,6 @@
 import AddUrlsForm from "@/components/add-urls-form";
-import { api } from "@/trpc-server/server";
 
 export default async function AddMonitor() {
-  const data = await api.slack.getAuthUrl();
   return (
     <div className="space-y-6 w-full">
       <div>
@@ -11,7 +9,7 @@ export default async function AddMonitor() {
       </div>
 
       <div className="w-full">
-        <AddUrlsForm slackURL={data.url} />
+        <AddUrlsForm />
       </div>
     </div>
   )

@@ -1,10 +1,12 @@
 'use client'
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Input } from './ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
-import { Switch } from './ui/switch'
+import { monitorSchema } from '@/schemas'
+import { api } from '@/trpc-server/react'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { toast } from 'sonner'
+import { z } from "zod"
 import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
     Form,
     FormControl,
@@ -13,20 +15,12 @@ import {
     FormLabel,
     FormMessage
 } from './ui/form'
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { monitorSchema } from '@/schemas'
-import { api } from '@/trpc-server/react'
-import { toast } from 'sonner'
+import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { Switch } from './ui/switch'
 
-type AddUrlsFormProps = {
-    slackURL: string;
-};
-
-
-const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
+const AddUrlsForm = () => {
     const { mutateAsync: addURL, isPending, } = api.monitor.add.useMutation({
         onError: (error) => {
             console.error("API error:", error);
@@ -54,6 +48,9 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
         form.reset()
     }
 
+    const connectSlack = () => {
+        window.location.href = "/api/slack/redirect";
+      };
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -156,11 +153,7 @@ const AddUrlsForm = ({ slackURL }: AddUrlsFormProps) => {
                                     <p className="text-sm text-muted-foreground">Send notifications to your Slack channel</p>
                                 </div>
                                 <div className="flex gap-4 mt-6">
-                                    <Button onClick={() => {
-                                        if (slackURL) {
-                                            window.location.href = slackURL;
-                                        }
-                                    }}>
+                                    <Button onClick={connectSlack}>
                                         Connect Slack
                                     </Button>
                                 </div>
