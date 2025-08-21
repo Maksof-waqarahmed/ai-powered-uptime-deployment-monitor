@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,12 +30,19 @@ export default function Chatbot() {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isLoading])
+
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return
+    const text = inputValue.trim()
+    if (!text) return
 
     const userMessage: Message = {
-      id: messages.length + 1,
-      content: inputValue,
+      id: Date.now(),
+      content: text,
       sender: "user",
       timestamp: new Date(),
     }
@@ -47,14 +54,14 @@ export default function Chatbot() {
     // Simulate AI response
     setTimeout(() => {
       const botResponse: Message = {
-        id: messages.length + 2,
-        content: getBotResponse(inputValue),
+        id: Date.now() + 1,
+        content: getBotResponse(text),
         sender: "bot",
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, botResponse])
       setIsLoading(false)
-    }, 1500)
+    }, 1200)
   }
 
   const getBotResponse = (input: string): string => {
@@ -86,79 +93,88 @@ export default function Chatbot() {
         <p className="text-muted-foreground">Get intelligent insights about your uptime data and monitoring setup</p>
       </div>
 
-      <Card className="h-[600px] flex flex-col">
+      {/* Fixed-height card with inner scroll */}
+      <Card className="h-[600px] flex flex-col overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
             AI Assistant
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <ScrollArea className="flex-1 pr-4">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {message.sender === "bot" && (
+
+        <CardContent className="flex-1 flex min-h-0 flex-col">
+          {/* This wrapper lets the ScrollArea actually shrink and scroll */}
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-full pr-4">
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {message.sender === "bot" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs opacity-70 mt-1">{message.timestamp.toLocaleTimeString()}</p>
+                    </div>
+
+                    {message.sender === "user" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex gap-3 justify-start">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>
                         <Bot className="h-4 w-4" />
                       </AvatarFallback>
                     </Avatar>
-                  )}
-
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-1">{message.timestamp.toLocaleTimeString()}</p>
-                  </div>
-
-                  {message.sender === "user" && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-
-              {isLoading && (
-                <div className="flex gap-3 justify-start">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted rounded-lg px-4 py-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-current rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-current rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
+                    <div className="bg-muted rounded-lg px-4 py-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-current rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-current rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+                )}
 
+                {/* Scroll target */}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Input stays pinned inside the card */}
           <div className="flex gap-2 mt-4">
             <Input
               placeholder="Ask me about your uptime data, incidents, or monitoring setup..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               disabled={isLoading}
             />
             <Button onClick={handleSendMessage} disabled={isLoading || !inputValue.trim()} size="icon">
