@@ -11,6 +11,8 @@ export const monitorRouter = createTRPCRouter({
             checkInterval: z.string().min(1),
             timeout: z.string().min(1),
             emailAlert: z.boolean(),
+            slackAlert: z.boolean(),
+            slackWebhook: z.string().optional(),
             email: z.string().email().optional()
         })
     ).mutation(async ({ ctx, input }) => {
@@ -24,6 +26,10 @@ export const monitorRouter = createTRPCRouter({
                     checkInterval: input.checkInterval,
                     timeout: input.timeout,
                     userId: userID,
+                    emailAlert: input.emailAlert || false,
+                    slackAlert: input.slackAlert || false,
+                    slackWebhook: input.slackWebhook || null,
+                    email: input.email || null,
                     nextCheckAt: new Date(Date.now() + Number(input.checkInterval) * 60 * 1000)
                 }
             })

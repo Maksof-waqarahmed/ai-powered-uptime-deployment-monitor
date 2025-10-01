@@ -16,7 +16,6 @@ import {
     FormMessage
 } from './ui/form'
 import { Input } from './ui/input'
-import { Label } from './ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { Switch } from './ui/switch'
 
@@ -34,23 +33,43 @@ const AddUrlsForm = () => {
             url: "",
             checkInterval: "5",
             timeout: "30",
-            emailAlert: false,
+            emailAlert: true,
+            email: "",
+            slackAlert: false,
+            slackWebhook: "",
         }
     });
 
 
     async function onSubmit(values: z.infer<typeof monitorSchema>) {
+        console.log(values)
+        if (!values.emailAlert && !values.slackAlert) {
+            toast.error("Please select at least one alert method");
+            return;
+        }
+        if (values.emailAlert && !values.email) {
+            toast.error("Please enter an email address");
+            return;
+        }
+        if (values.slackAlert && !values.slackWebhook) {
+            toast.error("Please enter a Slack webhook URL");
+            return;
+        }
+
+        if (!values.url.startsWith("http://") && !values.url.startsWith("https://")) {
+            values.url = "https://" + values.url
+        }
+
+
         await addURL({
             ...values
         })
 
         toast.success("Monitor Created Successfully");
         form.reset()
+
     }
 
-    const connectSlack = () => {
-        window.location.href = "/api/slack/redirect";
-      };
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -136,6 +155,7 @@ const AddUrlsForm = () => {
                                         <div>
                                             <FormLabel>Email Alerts</FormLabel>
                                             <p className="text-sm text-muted-foreground">Receive email notifications when status changes</p>
+                                            <FormMessage />
                                         </div>
                                         <FormControl>
                                             <Switch
@@ -147,18 +167,58 @@ const AddUrlsForm = () => {
                                 )}
                             />
 
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Slack Alerts</Label>
-                                    <p className="text-sm text-muted-foreground">Send notifications to your Slack channel</p>
-                                </div>
-                                <div className="flex gap-4 mt-6">
-                                    <Button onClick={connectSlack}>
-                                        Connect Slack
-                                    </Button>
-                                </div>
-                            </div>
+                            {
+                                form.watch("emailAlert") && (
+                                    <FormField
+                                        control={form.control}
+                                        name="email"
+                                        render={({ field }) => (
+                                            <FormItem className='w-96'>
+                                                <FormControl>
+                                                    <Input type="email" {...field} placeholder="example@gmail.com" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )
+                            }
 
+                            <FormField
+                                control={form.control}
+                                name="slackAlert"
+                                render={({ field }) => (
+                                    <FormItem className="flex items-center justify-between">
+                                        <div>
+                                            <FormLabel>Slack Alerts</FormLabel>
+                                            <p className="text-sm text-muted-foreground">Send notifications to your Slack channel</p>
+                                            <FormMessage />
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            {
+                                form.watch("slackAlert") && (
+                                    <FormField
+                                        control={form.control}
+                                        name="slackWebhook"
+                                        render={({ field }) => (
+                                            <FormItem className='w-96'>
+                                                <FormControl>
+                                                    <Input {...field} placeholder="https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )
+                            }
 
                         </div>
 

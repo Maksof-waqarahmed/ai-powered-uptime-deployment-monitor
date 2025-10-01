@@ -1,50 +1,56 @@
 import z from "zod";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
 const schema = z.object({
-    status: z.enum(["UP", "DOWN", "ERROR"]),
-    httpCode: z.number().nullable(),
-    responseTime: z.number().nullable(),
-    errorMessage: z.string().nullable(),
+  status: z.enum(["UP", "DOWN", "ERROR"]),
+  httpCode: z.number().nullable(),
+  responseTime: z.number().nullable(),
+  errorMessage: z.string().nullable(),
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 async function generateWithRetry(prompt: string, retries = 3) {
-    const modelNames = ["gemini-1.5-flash", "gemini-1.0-pro"];
+  for (let i = 0; i < retries; i++) {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "You are a website uptime checker. Return only valid JSON.",
+          },
+          { role: "user", content: prompt },
+        ],
+      });
 
-    for (let i = 0; i < retries; i++) {
-        const modelName = i === retries - 1 ? modelNames[1] : modelNames[0];
-        const model = genAI.getGenerativeModel({ model: modelName });
-
-        try {
-            const result = await model.generateContent(prompt);
-            return result.response.text();
-        } catch (err: any) {
-            if (err.status === 503 && i < retries - 1) {
-                const wait = 2000 * (i + 1);
-                console.warn(`⚠️ ${modelName} busy, retrying in ${wait / 1000}s...`);
-                await new Promise(res => setTimeout(res, wait));
-                continue;
-            }
-            throw err;
-        }
+      return completion.choices[0]?.message?.content || "";
+    } catch (err) {
+      if (i < retries - 1) {
+        const wait = 2000 * (i + 1);
+        console.warn(`⚠️ GPT busy or failed, retrying in ${wait / 1000}s...`);
+        await new Promise((res) => setTimeout(res, wait));
+        continue;
+      }
+      throw err;
     }
+  }
 }
 
-export async function generateGeminiResponse({
-    httpCode,
-    responseTime,
-    errorMessage,
-    bodySnippet,
+export async function generateGPTResponse({
+  httpCode,
+  responseTime,
+  errorMessage,
+  bodySnippet,
 }: {
-    httpCode: number | null;
-    responseTime: number | null;
-    errorMessage: string | null;
-    bodySnippet: string;
+  httpCode: number | null;
+  responseTime: number | null;
+  errorMessage: string | null;
+  bodySnippet: string;
 }) {
-    const prompt = `You are a website uptime checker.
-HTTP Code: ${httpCode}
+  const prompt = `HTTP Code: ${httpCode}
 Response Time: ${responseTime} ms
 Error Message: ${errorMessage}
 Body Snippet: """${bodySnippet}"""
@@ -61,19 +67,18 @@ Rules:
 - ERROR: request failed due to network/DNS/timeout
 - Always return valid JSON only, no extra commentary.`;
 
-    try {
-        const text = await generateWithRetry(prompt);
+  try {
+    const text = await generateWithRetry(prompt);
+    const clean = text?.replace(/```json|```/g, "").trim();
 
-        const clean = text?.replace(/```json|```/g, "").trim();
-
-        const parsed = schema.safeParse(JSON.parse(clean || ""));
-        if (!parsed.success) {
-            console.error("❌ Schema validation failed:", parsed.error);
-            return null;
-        }
-        return parsed.data;
-    } catch (err) {
-        console.error("Gemini analysis failed:", err);
-        return null;
+    const parsed = schema.safeParse(JSON.parse(clean || ""));
+    if (!parsed.success) {
+      console.error("❌ Schema validation failed:", parsed.error);
+      return null;
     }
+    return parsed.data;
+  } catch (err) {
+    console.error("GPT analysis failed:", err);
+    return null;
+  }
 }

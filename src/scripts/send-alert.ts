@@ -1,15 +1,13 @@
-import { WebClient } from "@slack/web-api";
-
-export async function sendSlackMessage(accessToken: string, channelId: string, text: string) {
+export async function sendSlackWebhook(webhookUrl: string, message: string) {
   try {
-    const slack = new WebClient(accessToken);
-    await slack.chat.postMessage({
-      channel: channelId,
-      text,
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: message }),
     });
 
-    console.log('Slack alert sent!');
-  } catch (error: any) {
-    console.error('Error sending Slack alert:', error);
+    console.log("Slack alert sent!");
+  } catch (error) {
+    console.error("Error sending Slack alert:", error);
   }
 }

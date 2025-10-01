@@ -6,7 +6,9 @@ export const monitorSchema = z.object({
   checkInterval: z.string().min(1),
   timeout: z.string().min(1),
   emailAlert: z.boolean(),
+  slackAlert: z.boolean(),
   email: z.string().email().optional(),
+  slackWebhook: z.string().optional(),
 });
 
 export const monitorUpdateSchema = z.object({
@@ -14,4 +16,8 @@ export const monitorUpdateSchema = z.object({
   url: z.string().url("Invalid URL"),
   checkInterval: z.string().min(1),
   timeout: z.string().min(1),
+  emailAlert: z.boolean(),
+  slackAlert: z.boolean(),
+  email: z.string().email().optional(),
+  slackWebhook: z.string().optional(),
 });

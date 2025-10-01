@@ -1,76 +1,88 @@
 import { prisma } from "../../prisma/db";
-import { generateGeminiResponse } from "./gpt-script";
-import { sendSlackMessage } from "./send-alert";
+import { generateGPTResponse } from "./gpt-script";
+import { sendSlackWebhook } from "./send-alert";
+import { sendEmail } from "./smtp-server";
 
 export const checkWebsite = async () => {
-    const now = new Date();
-    const monitors = await prisma.monitor.findMany({
-      where: { isDeleted: false, nextCheckAt: { lte: now } },
-      include: {
-        user: {
-          include: {
-            SlackInstallation: true, // user ke saath slackInstallation bhi nikal lo
-          },
-        },
-      },
-    });
-  
-    for (const monitor of monitors) {
-      const { url, id, checkInterval, user } = monitor;
-      let httpCode: number | null = null;
-      let responseTime: number | null = null;
-      let errorMessage: string | null = null;
-      let bodySnippet = "";
-  
-      try {
-        const start = Date.now();
-        const res = await fetch(url, { method: "GET" });
-        responseTime = Date.now() - start;
-        httpCode = res.status;
-  
-        const body = await res.text();
-        bodySnippet = body.slice(0, 1000);
-      } catch (err: any) {
-        errorMessage = err.message || "Request failed";
-      }
-  
-      const geminiResult = await generateGeminiResponse({
+  const now = new Date();
+  const monitors = await prisma.monitor.findMany({
+    where: { isDeleted: false, nextCheckAt: { lte: now } },
+    select: {
+      id: true,
+      url: true,
+      checkInterval: true,
+      email: true,
+      slackWebhook: true,
+    }
+  });
+
+  for (const monitor of monitors) {
+    const { url, id, checkInterval, email, slackWebhook } = monitor;
+    let httpCode: number | null = null;
+    let responseTime: number | null = null;
+    let errorMessage: string | null = null;
+    let bodySnippet = "";
+
+    try {
+      const start = Date.now();
+      const res = await fetch(url, { method: "GET" });
+      responseTime = Date.now() - start;
+      httpCode = res.status;
+
+      const body = await res.text();
+      bodySnippet = body.slice(0, 1000);
+    } catch (err: any) {
+      errorMessage = err.message || "Request failed";
+    }
+
+    let gptResult;
+    if (httpCode && httpCode >= 200 && httpCode < 300) {
+      gptResult = { status: "UP", httpCode, responseTime, errorMessage: null };
+    } else if (httpCode && httpCode >= 400) {
+      gptResult = { status: "DOWN", httpCode, responseTime, errorMessage };
+    } else {
+      gptResult = await generateGPTResponse({
         httpCode,
         responseTime,
         errorMessage,
         bodySnippet,
       });
-      
-  
-      let log;
-      if (geminiResult) {
-        log = await prisma.monitorLog.create({
-          data: {
-            monitorId: id,
-            status: geminiResult.status,
-            httpCode: geminiResult.httpCode,
-            responseTime: geminiResult.responseTime,
-            errorMessage: geminiResult.errorMessage,
-            checkedAt: new Date()
-          },
-        });
-      }
-  
-      await prisma.monitor.update({
-        where: { id },
+    }
+
+    if (gptResult) {
+      await prisma.monitorLog.create({
         data: {
-          nextCheckAt: new Date(Date.now() + Number(checkInterval) * 60 * 1000),
+          monitorId: id,
+          status: gptResult.status,
+          httpCode: gptResult.httpCode,
+          responseTime: gptResult.responseTime,
+          errorMessage: gptResult.errorMessage,
+          checkedAt: new Date()
         },
       });
-  
-      if (geminiResult?.status === "DOWN" && user?.SlackInstallation?.length) {
-        const slack = user.SlackInstallation[0];
-  
-        if (slack.channelId && slack.accessToken) {
-          await sendSlackMessage(slack.accessToken, slack.channelId,
-            `⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`
-          );
-        }
-      }
     }
-  };
+
+    await prisma.monitor.update({
+      where: { id },
+      data: {
+        nextCheckAt: new Date(Date.now() + Number(checkInterval) * 60 * 1000),
+      },
+    });
+
+    if (gptResult?.status === "DOWN" && slackWebhook) {
+      console.log("Alert check:", gptResult?.status, slackWebhook, email);
+
+      await sendSlackWebhook(slackWebhook,
+        `⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
+      );
+    } else if (gptResult?.status === "DOWN" && email) {
+      console.log("Alert check:", gptResult?.status, slackWebhook, email);
+      await sendEmail(email!,
+        `⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
+      );
+    }
+
+
+    console.log("✅ Checked:", url, gptResult);
+  }
+};

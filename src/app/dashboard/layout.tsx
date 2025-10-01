@@ -6,11 +6,8 @@ export default function Layout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body>
-                <DashboardLayout children={children}>
-                </DashboardLayout>
-            </body>
-        </html>
+        <DashboardLayout>
+            {children}
+        </DashboardLayout>
     );
 }
