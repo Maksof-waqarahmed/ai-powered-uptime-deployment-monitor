@@ -1,6 +1,6 @@
 import { prisma } from "../../prisma/db";
 import { generateGPTResponse } from "./gpt-script";
-import { sendSlackWebhook } from "./send-alert";
+import { sendSlackWebhook } from "./send-slack-alert";
 import { sendEmail } from "./smtp-server";
 
 export const checkWebsite = async () => {
@@ -13,11 +13,12 @@ export const checkWebsite = async () => {
       checkInterval: true,
       email: true,
       slackWebhook: true,
+      name: true,
     }
   });
 
   for (const monitor of monitors) {
-    const { url, id, checkInterval, email, slackWebhook } = monitor;
+    const { url, id, checkInterval, email, slackWebhook, name } = monitor;
     let httpCode: number | null = null;
     let responseTime: number | null = null;
     let errorMessage: string | null = null;
@@ -69,20 +70,16 @@ export const checkWebsite = async () => {
       },
     });
 
-    if (gptResult?.status === "DOWN" && slackWebhook) {
-      console.log("Alert check:", gptResult?.status, slackWebhook, email);
-
-      await sendSlackWebhook(slackWebhook,
-        `⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
-      );
-    } else if (gptResult?.status === "DOWN" && email) {
-      console.log("Alert check:", gptResult?.status, slackWebhook, email);
+    if ((gptResult?.status === "DOWN" || gptResult?.status === "ERROR") && email) {
       await sendEmail(email!,
-        `⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
+        `Name: ${name}\n⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
       );
     }
 
-
-    console.log("✅ Checked:", url, gptResult);
+    if ((gptResult?.status === "DOWN" || gptResult?.status === "ERROR") && slackWebhook) {
+      await sendSlackWebhook(slackWebhook,
+        `Name: ${name}\n⚠️ Website Down Alert\nURL: ${url}\nError: ${errorMessage || httpCode}`,
+      );
+    }
   }
 };
