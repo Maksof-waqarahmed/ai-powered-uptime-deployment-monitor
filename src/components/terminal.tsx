@@ -51,7 +51,7 @@ const TerminalComp = ({ data }: TerminalProps) => {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="bg-black rounded-lg p-4 font-mono text-sm max-h-96 overflow-y-auto">
+                    <div className="bg-black rounded-lg font-mono text-sm max-h-96">
                         {data && data.map((log) => (
                             <div key={log.id} className="mb-2 hover:bg-gray-900 p-2 rounded">
                                 <span className="text-gray-500"> [{log.checkedAt.toLocaleString()}]</span>{" "}

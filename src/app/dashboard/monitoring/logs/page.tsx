@@ -24,7 +24,7 @@ export default async function LogsPage() {
               />
             </div>
             <div className="flex gap-2">
-              {["ALL", "INFO", "WARN", "ERROR"].map((level) => (
+              {["ALL", "UP", "DOWN", "ERROR"].map((level) => (
                 <Button
                   key={level}
                   variant={"ALL" === level ? "default" : "outline"}

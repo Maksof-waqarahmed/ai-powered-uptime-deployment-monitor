@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent } from '../ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Button } from '../ui/button'
 import { Edit, Trash2 } from 'lucide-react'
@@ -9,28 +9,20 @@ import { api } from '@/trpc-server/react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import PaginationComponent from '../pagination'
-
-interface URLs {
-    name: string,
-    checkInterval: string,
-    timeout: string,
-    slackAlert: boolean,
-    emailAlert: boolean,
-    url: string,
-    id: string
-}
+import { URLs } from '@/schemas'
 
 interface TableProps {
     data: URLs[],
     totalPages: number,
     currentPage: number
 }
+
 const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedURL, setSelectedURL] = useState<URLs | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    const { mutateAsync: remove, isPending } = api.urls.deleteURLs.useMutation({
+    const { mutateAsync: remove } = api.urls.deleteURLs.useMutation({
         onError: (error) => {
             console.log("Error", error)
         }
@@ -66,7 +58,9 @@ const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
                                 <TableHead>App Name</TableHead>
                                 <TableHead>URL</TableHead>
                                 <TableHead>Interval</TableHead>
-                                <TableHead>Time Out</TableHead>
+                                <TableHead>Timeout</TableHead>
+                                <TableHead>Email Alert</TableHead>
+                                <TableHead>Slack Alert</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -76,10 +70,26 @@ const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
                                     data.map((log) => (
                                         <TableRow key={log.id}>
                                             <TableCell>{log.name}</TableCell>
-                                            <TableCell className="text-blue-600"><a href={log.url} target='_blank'>{log.url}</a></TableCell>
+                                            <TableCell className="text-blue-600">
+                                                <a href={log.url} target='_blank'>{log.url}</a>
+                                            </TableCell>
                                             <TableCell>{log.checkInterval}</TableCell>
                                             <TableCell>{log.timeout}</TableCell>
                                             <TableCell>
+                                                {log.emailAlert ? (
+                                                    <span className="text-green-600 font-medium">Yes</span>
+                                                ) : (
+                                                    <span className="text-red-500 font-medium">No</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {log.slackAlert ? (
+                                                    <span className="text-green-600 font-medium">Yes</span>
+                                                ) : (
+                                                    <span className="text-red-500 font-medium">No</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="flex gap-2">
                                                 <Button
                                                     size="sm"
                                                     variant="ghost"
@@ -108,7 +118,7 @@ const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-gray-500">
+                                        <TableCell colSpan={7} className="text-center text-gray-500">
                                             No URL Added Yet!
                                         </TableCell>
                                     </TableRow>
@@ -128,6 +138,5 @@ const TableURLs = ({ data, currentPage, totalPages }: TableProps) => {
         </div>
     );
 };
-
 
 export default TableURLs

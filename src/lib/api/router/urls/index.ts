@@ -6,6 +6,8 @@ const monitorSelect = {
     name: true,
     checkInterval: true,
     slackAlert: true,
+    slackWebhook: true,
+    email: true,
     timeout: true,
     url: true,
     emailAlert: true,

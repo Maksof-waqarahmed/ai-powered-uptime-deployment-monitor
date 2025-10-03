@@ -1,18 +1,13 @@
-import React from "react";
-import SearchCard from "./search-card";
-import TableURLs from "./table";
-import { api } from "@/trpc-server/server";
-
-interface Props {
-    searchParams: { page?: string };
+import React from "react"
+import TableURLs from "./table"
+import { URLs } from "@/schemas"
+interface URLsProps {
+    items: URLs[]
+    totalPages: number
+    currentPage: number
 }
 
-const URLsComponent = async ({ searchParams }: Props) => {
-    const page = Number(searchParams?.page) || 1;
-    const limit = 10;
-
-    const { items, totalPages } = await api.urls.getAllURLs({ page, limit });
-
+const URLsComponent = ({ items, totalPages, currentPage }: URLsProps) => {
     return (
         <div>
             <div className="space-y-6">
@@ -24,15 +19,14 @@ const URLsComponent = async ({ searchParams }: Props) => {
                         </p>
                     </div>
                 </div>
-                {/* <SearchCard /> */}
                 <TableURLs
                     data={items}
                     totalPages={totalPages}
-                    currentPage={page}
+                    currentPage={currentPage}
                 />
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default URLsComponent;
+export default URLsComponent

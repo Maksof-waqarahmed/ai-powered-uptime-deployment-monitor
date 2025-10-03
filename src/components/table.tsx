@@ -27,7 +27,6 @@ const TableLogs = ({ data }: TableProps) => {
                                 <TableHead>HTTP Code</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Duration</TableHead>
-                                <TableHead>Message</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -45,9 +44,6 @@ const TableLogs = ({ data }: TableProps) => {
                                         <span className="">{log.status}</span>
                                     </TableCell>
                                     <TableCell className="font-mono text-sm">{log.responseTime}</TableCell>
-                                    <TableCell className="max-w-md truncate">
-                                        {log.errorMessage ?? "Success"}
-                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

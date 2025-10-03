@@ -10,24 +10,16 @@ import {
     SheetHeader,
     SheetTitle
 } from "@/components/ui/sheet"
-import { monitorUpdateSchema } from "@/schemas"
+import { monitorUpdateSchema, URLs as EditURL } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import z from "zod"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Switch } from "@/components/ui/switch"
 import { api } from "@/trpc-server/react"
 import { useRouter } from "next/navigation"
-
-interface EditURL {
-    name: string,
-    checkInterval: string,
-    timeout: string,
-    url: string,
-    id: string
-}
-
 interface UpdateURLProps {
     open: boolean
     onOpenChange: (open: boolean) => void
@@ -55,6 +47,10 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                 url: url.url,
                 checkInterval: url.checkInterval,
                 timeout: url.timeout,
+                slackAlert: url.slackAlert || false,
+                slackWebhook: url.slackWebhook || "",
+                emailAlert: url.emailAlert || false,
+                email: url.email || "",
             });
         }
     }, [url, form]);
@@ -78,7 +74,8 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div className="grid flex-1 auto-rows-min gap-6 px-4">
-                            
+
+                            {/* Name */}
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -93,6 +90,7 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
+                            {/* URL */}
                             <FormField
                                 control={form.control}
                                 name="url"
@@ -107,6 +105,7 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
+                            {/* Interval */}
                             <FormField
                                 control={form.control}
                                 name="checkInterval"
@@ -132,6 +131,7 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                 )}
                             />
 
+                            {/* Timeout */}
                             <FormField
                                 control={form.control}
                                 name="timeout"
@@ -145,19 +145,79 @@ const UpdateURL = ({ open, onOpenChange, url }: UpdateURLProps) => {
                                     </FormItem>
                                 )}
                             />
+
+                            {/* Slack Toggle */}
+                            <FormField
+                                control={form.control}
+                                name="slackAlert"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel>Slack Alert</FormLabel>
+                                            <FormControl>
+                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                            </FormControl>
+                                        </div>
+                                        {field.value && (
+                                            <FormField
+                                                control={form.control}
+                                                name="slackWebhook"
+                                                render={({ field }) => (
+                                                    <FormItem className="mt-2">
+                                                        <FormControl>
+                                                            <Input placeholder="https://hooks.slack.com/..." {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Email Toggle */}
+                            <FormField
+                                control={form.control}
+                                name="emailAlert"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel>Email Alert</FormLabel>
+                                            <FormControl>
+                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                            </FormControl>
+                                        </div>
+                                        {field.value && (
+                                            <FormField
+                                                control={form.control}
+                                                name="email"
+                                                render={({ field }) => (
+                                                    <FormItem className="mt-2">
+                                                        <FormControl>
+                                                            <Input type="email" placeholder="user@example.com" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+
                         </div>
 
                         <SheetFooter>
-                            <Button disabled={isPending} type="submit">{isPending ? "Updating..." : "Update"}</Button>
+                            <Button disabled={isPending} type="submit">
+                                {isPending ? "Updating..." : "Update"}
+                            </Button>
                         </SheetFooter>
                     </form>
                 </Form>
-
             </SheetContent>
         </Sheet>
-
     );
 };
-
 
 export default UpdateURL

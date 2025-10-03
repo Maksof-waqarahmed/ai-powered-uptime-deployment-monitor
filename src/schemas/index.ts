@@ -21,3 +21,15 @@ export const monitorUpdateSchema = z.object({
   email: z.string().email().optional(),
   slackWebhook: z.string().optional(),
 });
+
+export type URLs = {
+  id: string
+  name: string
+  url: string
+  checkInterval: string
+  timeout: string
+  emailAlert: boolean
+  slackAlert: boolean
+  email: string | null
+  slackWebhook: string | null
+}
