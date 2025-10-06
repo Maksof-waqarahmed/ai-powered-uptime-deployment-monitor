@@ -1,0 +1,70 @@
+name : CI / CD Pipeline
+
+on: 
+  pull_request:
+    branches:
+      - main
+  
+  push:
+    branches:
+      - main 
+  
+jobs:
+  lint: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Setup node.js 
+        uses: actions/setup-nodes@v4
+        with:
+          node-version: 20
+      
+      - name: Install Dependncies
+        run: npm install 
+      
+      - name: Run Linter
+        run: npm run lint 
+
+  build_and_deploy:
+    if : github.event_name == 'push'
+    runs-on: ubuntu-latest 
+    needs: lint 
+    steps: 
+      - name: Checkout Code 
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js 
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install Dependncies 
+        run: npm install 
+
+      - name: Build Project
+        run: npm run build 
+      
+      - name: login into DockerHub 
+        using: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker image 
+        run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/ai-uptime-monitor:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/ai-uptime-monitor:latest
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/ai-uptime-monitor:latest
+            docker stop uptime-monitor || true
+            docker rm uptime-monitor || true
+            docker run -d -p 3000:3000 --name uptime-monitor ${{ secrets.DOCKER_USERNAME }}/ai-uptime-monitor:latest
